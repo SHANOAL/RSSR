@@ -1,0 +1,10 @@
+torch==2.2.1
+torchvision==0.17.1
+numpy==1.26.4
+Pillow==11.0.0
+rasterio==1.4.3
+kornia==0.8.1
+pyiqa==0.1.12
+tqdm
+typed-argument-parser
+pytz
