@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CrossVAR: Sentinel-2 to 1-m super-resolution demo</title>
+<style>
+  :root { --ink: #1f2933; --muted: #5f6b76; --accent: #c8372d; --bg: #f7f8fa; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: var(--ink); background: var(--bg); }
+  header { max-width: 980px; margin: 0 auto; padding: 32px 20px 8px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  header p { margin: 4px 0; color: var(--muted); line-height: 1.5; }
+  main { max-width: 980px; margin: 0 auto; padding: 8px 20px 40px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+  .controls button { border: 1px solid #cfd6dd; background: #fff; color: var(--ink); padding: 7px 14px; border-radius: 18px; cursor: pointer; font-size: 14px; }
+  .controls button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .controls .sep { flex: 1; }
+  .compare { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 900px; margin: 0 auto; overflow: hidden; border-radius: 10px;
+             box-shadow: 0 6px 24px rgba(0,0,0,.12); background: #222; cursor: ew-resize; user-select: none; touch-action: none; }
+  .compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .compare .left { clip-path: inset(0 50% 0 0); image-rendering: pixelated; }
+  .bar { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; margin-left: -1.5px; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,.4); pointer-events: none; }
+  .knob { position: absolute; top: 50%; left: 50%; width: 38px; height: 38px; margin: -19px 0 0 -19px; border-radius: 50%; background: #fff;
+          box-shadow: 0 2px 8px rgba(0,0,0,.35); pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #333; }
+  .tag { position: absolute; top: 12px; padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,.6); color: #fff; font-size: 13px; font-weight: 600; pointer-events: none; }
+  .tag.l { left: 12px; } .tag.r { right: 12px; }
+  .hint { text-align: center; color: var(--muted); font-size: 13px; margin-top: 10px; }
+  footer { max-width: 980px; margin: 0 auto; padding: 0 20px 30px; color: var(--muted); font-size: 13px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>CrossVAR: Sentinel-2 to 1-m imagery</h1>
+  <p>Real-world &times;10 cross-sensor super-resolution on complete 1600&times;1600 test scenes of the YREB-SR benchmark.
+     Drag the divider to compare the 10-m Sentinel-2 input with the 1-m reconstruction.</p>
+  <p><a href="https://github.com/SHANOAL/RSSR">Code on GitHub</a></p>
+</header>
+<main>
+  <div class="controls" id="scenes"></div>
+  <div class="controls">
+    <span style="color:var(--muted);font-size:14px">Right side:</span>
+    <button class="active" data-right="crossvar">CrossVAR 1 m</button>
+    <button data-right="reference">Jilin-1 reference 1 m</button>
+  </div>
+  <div class="compare" id="compare">
+    <img class="right" id="right" alt="1-m image">
+    <img class="left" id="left" alt="Sentinel-2 input">
+    <div class="bar" id="bar"></div>
+    <div class="knob" id="knob">&#9664;&#9654;</div>
+    <span class="tag l">Sentinel-2 10 m</span>
+    <span class="tag r" id="rtag">CrossVAR 1 m</span>
+  </div>
+  <p class="hint">Drag, click, or use the arrow keys. Each scene covers 1.6 &times; 1.6 km.</p>
+</main>
+<footer>The Sentinel-2 composite is contrast-stretched for display and shown with its original 10-m pixels.</footer>
+<script>
+  const scenes = ["Urban", "Water", "Transport", "Rural"];
+  const box = document.getElementById("compare"), left = document.getElementById("left"), right = document.getElementById("right");
+  const bar = document.getElementById("bar"), knob = document.getElementById("knob"), rtag = document.getElementById("rtag");
+  let scene = "urban", side = "crossvar", pos = 0.5, dragging = false;
+
+  function load() {
+    left.src = `images/${scene}_s2.jpg`;
+    right.src = `images/${scene}_${side}.jpg`;
+    rtag.textContent = side === "crossvar" ? "CrossVAR 1 m" : "Jilin-1 reference 1 m";
+  }
+  function set(p) {
+    pos = Math.min(1, Math.max(0, p));
+    left.style.clipPath = `inset(0 ${(1 - pos) * 100}% 0 0)`;
+    bar.style.left = knob.style.left = `${pos * 100}%`;
+  }
+  function fromEvent(e) { const r = box.getBoundingClientRect(); set((e.clientX - r.left) / r.width); }
+
+  const sceneBar = document.getElementById("scenes");
+  scenes.forEach((name, i) => {
+    const b = document.createElement("button");
+    b.textContent = name; if (i === 0) b.classList.add("active");
+    b.onclick = () => { scene = name.toLowerCase(); sceneBar.querySelectorAll("button").forEach(x => x.classList.toggle("active", x === b)); load(); };
+    sceneBar.appendChild(b);
+  });
+  document.querySelectorAll("[data-right]").forEach(b => b.onclick = () => {
+    side = b.dataset.right; document.querySelectorAll("[data-right]").forEach(x => x.classList.toggle("active", x === b)); load();
+  });
+  box.addEventListener("pointerdown", e => { dragging = true; box.setPointerCapture(e.pointerId); fromEvent(e); });
+  box.addEventListener("pointermove", e => { if (dragging) fromEvent(e); });
+  box.addEventListener("pointerup", () => dragging = false);
+  document.addEventListener("keydown", e => { if (e.key === "ArrowLeft") set(pos - 0.03); if (e.key === "ArrowRight") set(pos + 0.03); });
+  load(); set(0.5);
+</script>
+</body>
+</html>

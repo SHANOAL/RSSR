@@ -9,6 +9,27 @@ CrossVAR reconstructs 1-m RGB imagery from a single 10-m Sentinel-2 RGB composit
 estimates the remaining quantization residual without injected noise, and **aligned window decoding** reconstructs
 complete 1600×1600 scenes from windows that start on the Sentinel-2 pixel grid and are decoded at the training size.
 
+## Demo
+
+**[Interactive comparison: drag the divider on complete scenes](https://shanoal.github.io/RSSR/)**
+
+<p align="center"><img src="assets/demo/overview.gif" width="62%"></p>
+<p align="center">Complete 1.6 &times; 1.6 km test scene: Sentinel-2 10 m input (left) and CrossVAR 1 m output (right).</p>
+
+<table>
+  <tr>
+    <td align="center"><img src="assets/demo/urban.gif" width="100%"><br>Urban</td>
+    <td align="center"><img src="assets/demo/water.gif" width="100%"><br>Water</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/demo/transport.gif" width="100%"><br>Transport</td>
+    <td align="center"><img src="assets/demo/rural.gif" width="100%"><br>Rural</td>
+  </tr>
+</table>
+
+The crops are 480 &times; 480 m at full 1-m resolution; the Sentinel-2 input is contrast-stretched and shown with its
+original 10-m pixels. `scripts/make_demo.py` regenerates these files from the test predictions.
+
 ## Installation
 
 ```bash
