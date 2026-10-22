@@ -11,7 +11,9 @@ complete 1600×1600 scenes from windows that start on the Sentinel-2 pixel grid 
 
 ## Demo
 
-**[Interactive comparison: drag the divider on complete scenes](https://shanoal.github.io/RSSR/)**
+<h2 align="center">
+  <a href="https://shanoal.github.io/RSSR/">&#128073; Interactive comparison: drag the divider on complete scenes</a>
+</h2>
 
 <p align="center"><img src="assets/demo/overview.gif" width="62%"></p>
 <p align="center">Complete 1.6 &times; 1.6 km test scene: Sentinel-2 10 m input (left) and CrossVAR 1 m output (right).</p>
